@@ -105,7 +105,7 @@ return {
         event = "BufReadPost",
         config = function()
             require("nvim-treesitter.configs").setup({
-                ensure_installed = { "lua", "go", "python", "bash" }, -- languages to install
+                ensure_installed = { "lua", "go", "python", "bash", "cpp" }, -- languages to install
                 highlight = { enable = true },
                 incremental_selection = { enable = true },
                 indent = { enable = true },
@@ -127,6 +127,15 @@ return {
             }
             local lspconfig = require("lspconfig")
             lspconfig.bashls.setup {}
+        end,
+    },
+
+    {
+        "L3MON4D3/LuaSnip",
+        config = function()
+            require("luasnip.loaders.from_lua").lazy_load({
+                paths = "~/.config/nvim/lua/snippets"
+            })
         end,
     },
 }

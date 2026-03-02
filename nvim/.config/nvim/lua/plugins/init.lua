@@ -1,4 +1,3 @@
-
 return {
     require("plugins.colorschemes"),
 
@@ -20,20 +19,39 @@ return {
     {
         "neovim/nvim-lspconfig",
         config = function()
-            local lspconfig = require("lspconfig")
-	    local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
             local on_attach = function(_, bufnr)
-                local opts = { noremap=true, silent=true, buffer=bufnr }
+                local opts = { noremap = true, silent = true, buffer = bufnr }
                 vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
                 vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
                 vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
                 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
             end
 
-            lspconfig.gopls.setup({
+            vim.lsp.config("gopls", {
+                cmd = { "gopls" },
+                filetypes = { "go", "gomod", "gowork", "gotmpl" },
+                root_markers = { "go.work", "go.mod", ".git" },
                 on_attach = on_attach,
-		capabilities = capabilities,
+                capabilities = capabilities,
+                settings = {
+                    gopls = {
+                        gofumpt = true,
+                        staticcheck = true,
+                    },
+                },
             })
+
+            vim.lsp.config("clangd", {
+                cmd = { "clangd" },
+                filetypes = { "c", "cpp", "objc", "objcpp" },
+                on_attach = on_attach,
+                capabilities = capabilities,
+            })
+
+            vim.lsp.enable("gopls")
+            vim.lsp.enable("clangd")
         end,
     },
 
@@ -105,10 +123,27 @@ return {
         event = "BufReadPost",
         config = function()
             require("nvim-treesitter.configs").setup({
-                ensure_installed = { "lua", "go", "python", "bash", "cpp" }, -- languages to install
+                ensure_installed = { "lua", "go", "python", "bash", "cpp", "sql" }, -- languages to install
                 highlight = { enable = true },
                 incremental_selection = { enable = true },
                 indent = { enable = true },
+            })
+        end,
+    },
+
+    {
+        "L3MON4D3/LuaSnip",
+        -- Make it load on the same event as nvim-cmp
+        event = "InsertEnter",
+        config = function()
+            -- Make sure this path is correct!
+            -- THIS IS THE CHANGED LINE:
+            -- We use vim.fn.stdpath("config") to get the absolute path 
+            -- to /home/user/.config/nvim, which resolves symlinks.
+            local snippet_path = vim.fn.stdpath("config") .. "/lua/snippets"
+            
+            require("luasnip.loaders.from_lua").lazy_load({
+                paths = { snippet_path } -- Pass the resolved path
             })
         end,
     },
@@ -123,19 +158,28 @@ return {
         dependencies = { "neovim/nvim-lspconfig" },
         config = function()
             require("mason-lspconfig").setup {
-                ensure_installed = { "bashls" }, -- auto install Bash LSP
+                ensure_installed = { "bashls" },
             }
-            local lspconfig = require("lspconfig")
-            lspconfig.bashls.setup {}
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            local on_attach = function(_, bufnr)
+                local opts = { noremap=true, silent=true, buffer=bufnr }
+                vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+                vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+            end
+
+            vim.lsp.config("bashls", {
+                on_attach = on_attach,
+                capabilities = capabilities,
+            })
+
+            vim.lsp.config("sqlls", {
+                on_attach = on_attach,
+                capabilities = capabilities,
+            })
         end,
     },
 
     {
-        "L3MON4D3/LuaSnip",
-        config = function()
-            require("luasnip.loaders.from_lua").lazy_load({
-                paths = "~/.config/nvim/lua/snippets"
-            })
-        end,
-    },
+        "github/copilot.vim",
+    }
 }

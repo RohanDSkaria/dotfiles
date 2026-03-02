@@ -4,7 +4,7 @@ return {
         priority = 1000,
         config = function()
             require("gruvbox").setup({
-                contrast = "hard",
+                contrast = "soft",
                 palette_overrides = {
                     dark0_hard = "#0d0d0d",
                 },
@@ -65,7 +65,7 @@ return {
         name = "moonfly",
         priority = 1000,
         config = function()
-            -- vim.cmd("colorscheme moonfly")
+            vim.cmd("colorscheme moonfly")
         end,
     },
     {
@@ -85,8 +85,19 @@ return {
                 italic_comments = false,
                 disable_nvimtree_bg = true,
             })
-            vim.cmd("colorscheme vscode")
+            -- vim.cmd("colorscheme vscode")
             vim.api.nvim_set_hl(0, "Normal", { bg = "#111111" })
         end,
-    }
+    },
+    {
+        "zenbones-theme/zenbones.nvim",
+        dependencies = "rktjmp/lush.nvim",
+        priority = 1000,
+        config = function()
+            vim.opt.termguicolors = true
+            vim.o.background = "dark"
+
+            -- vim.cmd.colorscheme("zenwritten")
+        end,
+    },
 }

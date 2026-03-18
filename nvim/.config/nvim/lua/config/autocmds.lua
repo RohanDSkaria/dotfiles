@@ -9,6 +9,8 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*.go",
     callback = function()
-        vim.cmd("silent !goimports -w %")
+        local file = vim.fn.expand("%")
+        vim.fn.system({ "goimports", "-w", file })
+        vim.cmd("edit")
     end,
 })
